@@ -12,6 +12,7 @@ dependencies = [
     "fastapi>=0.141.1",
     "firecrawl-py>=4.44.0",
     "langchain>=1.4.2",
+    "langchain-azure-ai>=1.2.10",
     "langchain-community>=0.4.2",
     "langchain-openai>=1.6.6",
     "langgraph>=1.2.12",
