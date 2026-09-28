@@ -5,10 +5,10 @@ import os
 from typing import Any, Dict
 
 from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings
-from langchain_azure_ai.vectorstores import AzureAISearchVectorStore
+from langchain_azure_ai.vectorstores import AzureSearch
 from langchain.messages import HumanMessage, SystemMessage
 
-from backend.src.graph.states import ComplianceIssue, VideoAuditState
+from backend.src.graph.states import VideoAuditState
 from backend.src.services.video_indexer import VideoIndexerService
 
 # Configure the logger
@@ -24,7 +24,7 @@ def video_indexer(state: VideoAuditState) -> Dict[str, Any]:
     Extracts the Insights
     """
 
-    video_url = state.get("vid:eo_url")
+    video_url = state.get("video_url")
     video_id_input = state.get("video_id", "video_demo")
 
     logger.info(f"---- [Node:Indexer] Processing : {video_url}")
@@ -66,14 +66,12 @@ def video_indexer(state: VideoAuditState) -> Dict[str, Any]:
 
 
 # Node 2: Compliance Auditor
-def audio_content(state: VideoAuditState) -> Dict[str, Any]:
+def audit_content(state: VideoAuditState) -> Dict[str, Any]:
     """
     Performs Retrieval Augmented Generation to Audit the Content of Brand Video
     """
 
-    logger.info(
-        "--- [Node: Auditor] Qfrom langchain_azure_ai.vectorstores import AzureAISearchVectorStoreuerying Knowledge Base & LLM"
-    )
+    logger.info("--- [Node: Auditor] Querying Knowledge Base & LLM")
 
     transcript = state.get("transcript", "")
 
@@ -94,7 +92,7 @@ def audio_content(state: VideoAuditState) -> Dict[str, Any]:
         api_version=os.getenv("AZURE_OPENAI_API_VERSION"),
     )
 
-    vector_store = AzureAISearchVectorStore(
+    vector_store = AzureSearch(
         azure_search_endpoint=os.getenv("AZURE_SEARCH_ENDPOINT"),
         azure_search_key=os.getenv("AZURE_SEARCH_API_KEY"),
         index_name=os.getenv("AZURE_SEARCH_INDEX_NAME"),
@@ -119,11 +117,11 @@ def audio_content(state: VideoAuditState) -> Dict[str, Any]:
         "compliance_results": [
             {{
                 "category": "Claim Validation",
-                "severity": "CRITICAL"
+                "severity": "CRITICAL",
                 "description": "Explaination of the violation..."
             }}
         ],
-        "status": "FAIL",
+        "final_status": "FAIL",
         "final_report": "Summary of the findings..."
     }}
 
@@ -133,7 +131,7 @@ def audio_content(state: VideoAuditState) -> Dict[str, Any]:
     user_message = f"""
     VIDEO_METADATA: {state.get("video_metadata", {})}
     TRANSCRIPT: {transcript}
-    ON-SCREEN TEXT (OCR: {ocr_text}
+    ON-SCREEN TEXT (OCR): {ocr_text}
     """
 
     try:
@@ -143,7 +141,7 @@ def audio_content(state: VideoAuditState) -> Dict[str, Any]:
         content = response.content
 
         if "```" in content:
-            content = re.search(r"```(?:json)?(.?)```", content, re.DOTALL).group(1)
+            content = re.search(r"```(?:json)?(.*?)```", content, re.DOTALL).group(1)
 
         audit_data = json.loads(content.strip())
 
