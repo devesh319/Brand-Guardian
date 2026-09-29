@@ -76,7 +76,7 @@ def audit_content(state: VideoAuditState) -> Dict[str, Any]:
     transcript = state.get("transcript", "")
 
     if not transcript:
-        logger.warning("No Transcript Available. Skippimg Audit......")
+        logger.warning("No Transcript Available. Skipping Audit......")
         return {
             "final_status": "FAIL",
             "final_report": "Audit Skipped because Video transcription failed (No transcript)",
@@ -125,7 +125,7 @@ def audit_content(state: VideoAuditState) -> Dict[str, Any]:
         "final_report": "Summary of the findings..."
     }}
 
-    If no violations are found, set "status" to pass and "compliance_results" to [].
+    If no violations are found, set "status" to "PASS" and "compliance_results" to [].
     """
 
     user_message = f"""
