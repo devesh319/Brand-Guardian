@@ -46,14 +46,14 @@ class VideoIndexerService:
         headers = {"Authorization": f"Bearer {arm_access_token}"}
         payload = {"permissionType": "Contributor", "scope": "Account"}
 
-        reponse = requests.post(url, headers=headers, json=payload)
+        response = requests.post(url, headers=headers, json=payload)
 
-        if reponse.status_code != 200:
-            raise Exception(f"Failed to ge VI Account token : {reponse.text}")
-        return reponse.json()
+        if response.status_code != 200:
+            raise Exception(f"Failed to ge VI Account token : {response.text}")
+        return response.json().get("accessToken")
 
     def download_youtube_video(
-        video_url: str, output_path: str = "temp_audit_video.mp4"
+        self, video_url: str, output_path: str = "temp_audit_video.mp4"
     ):
         logger.info(f"Downloading Youtube Video: {video_url}")
 
@@ -91,9 +91,11 @@ class VideoIndexerService:
 
         logger.info(f"Uploading file {video_path} to Azure Video Indexer")
 
-        with open(video_path, "wb") as video_file:
-            file = {"file": video_file}
-            response = requests.post(url=api_url, params=params, files=file)
+        with open(video_path, "rb") as video_file:
+            files = {"file": video_file}
+            response = requests.post(
+                url=api_url, params=params, files=files, timeout=120
+            )
 
         if response.status_code != 200:
             logger.error(
@@ -103,6 +105,8 @@ class VideoIndexerService:
                 f"Failed to Upload file {video_path} to Azure Video Indexer: {response.text}"
             )
 
+        return response.json().get("id")
+
     def wait_for_processing(self, video_id):
         logger.info(f"Waiting for video {video_id} upload to Azure Video Indexer")
 
@@ -110,7 +114,7 @@ class VideoIndexerService:
             arm_token = self.get_access_token()
             vi_token = self.get_account_token(arm_token)
 
-            api_url = f"https://api.videoindexer.ai/{self.location}/Accounts/{self.account_id}/Videos"
+            api_url = f"https://api.videoindexer.ai/{self.location}/Accounts/{self.account_id}/Videos/{video_id}/Index"
 
             params = {"accessToken": vi_token}
             response = requests.get(api_url, params=params)
@@ -127,7 +131,7 @@ class VideoIndexerService:
                     "Video Quarantined (Copyright / Content Policy Violation)"
                 )
 
-            logger.info(f"State: {state}")
+            logger.info(f"State: {state}, .....waiting 30 sec now")
             time.sleep(30)
 
     def extract_data(self, vi_json):
@@ -152,7 +156,7 @@ class VideoIndexerService:
 
         return {
             "transcript": " ".join(transcripts_lines),
-            "ocr": ocr_lines,
+            "ocr_text": ocr_lines,
             "video_metadata": {
                 "duration": vi_json.get("summarizedIndights", {}).get("duration"),
                 "platform": "youtube",

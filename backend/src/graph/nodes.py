@@ -103,7 +103,7 @@ def audit_content(state: VideoAuditState) -> Dict[str, Any]:
     ocr_text = state.get("ocr_text", [])
     query_text = f"{transcript} {''.join(ocr_text)}"
     docs = vector_store.similarity_search(query_text, k=3)
-    retrieved_rules = "\n\n".join([doc.content for doc in docs])
+    retrieved_rules = "\n\n".join([doc.page_content for doc in docs])
 
     system_prompt = f"""
     You are a Senior Brand Compliance Auditor.
@@ -125,7 +125,7 @@ def audit_content(state: VideoAuditState) -> Dict[str, Any]:
         "final_report": "Summary of the findings..."
     }}
 
-    If no violations are found, set "status" to "PASS" and "compliance_results" to [].
+    If no violations are found, set "final_status" to "PASS" and "compliance_results" to [].
     """
 
     user_message = f"""

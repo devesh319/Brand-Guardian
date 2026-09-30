@@ -56,7 +56,7 @@ def index_documents():
     try:
         logger.info("Initializing the Azure OpenAI Embeddings Model")
         embeddings = AzureOpenAIEmbeddings(
-            azure_deployment=os.getenv("AZURE_OPENAI_EMBEDDING_MODEL"),
+            azure_deployment=os.getenv("AZURE_OPENAI_EMBEDDING_DEPLOYMENT"),
             azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
             api_key=os.getenv("AZURE_OPENAI_API_KEY"),
             api_version=os.getenv("AZURE_OPENAI_API_VERSION"),
@@ -69,7 +69,12 @@ def index_documents():
     # Initialize the Azure AI Vector Store
     try:
         logger.info("Initializing the Azure AI Search Vector Store")
-        vector_store = AzureSearch()
+        vector_store = AzureSearch(
+            azure_search_endpoint=os.getenv("AZURE_SEARCH_ENDPOINT"),
+            azure_search_key=os.getenv("AZURE_SEARCH_API_KEY"),
+            index_name=os.getenv("AZURE_SEARCH_INDEX_NAME"),
+            embedding_function=embeddings.embed_query,
+        )
         logger.info("Initialization of Azure AI Search Vector Store Successful")
     except Exception as e:
         logger.error(f"Azure OpenAI Embeddings Model Initialization failed: {str(e)}")
@@ -102,7 +107,7 @@ def index_documents():
             splits = text_splitter.split_documents(raw_docs)
 
             for split in splits:
-                split["metadata"] = base_name
+                split.metadata["source"] = base_name
 
             all_splits.extend(splits)
             logger.info(f"Split the doc {base_name} into {len(splits)} chunks.")

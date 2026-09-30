@@ -1,9 +1,12 @@
 from dotenv import load_dotenv
+import argparse
 import json
 import logging
 import uuid
 
 from backend.src.graph.workflow import app
+from backend.utils.db_utils import get_video_analysis, add_video_analysis
+from backend.utils.utils import print_results
 
 load_dotenv(override=True)
 
@@ -12,16 +15,28 @@ logging.basicConfig(
 )
 logger = logging.getLogger("brand-guardian-runner")
 
+DB_PATH = (
+    "/home/devesh/Desktop/Learnings/Projects/CompilanceQAPipeline/brand_guardian.db"
+)
 
-def run_cli_simulation():
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(description="Run the compliance QA workflow.")
+    parser.add_argument(
+        "--url", "-u", required=True, help="URL of the video to analyze."
+    )
+    return parser.parse_args()
+
+
+def run_cli_simulation(video_url):
     # Get Session ID
-    session_id = uuid.uuid4()
+    session_id = uuid.uuid4().hex
     logger.info(f"Starting Audit Session: {session_id}")
 
     initial_inputs = {
-        "video_url": "",
-        "video_id": "",
-        "compliance_rseults": [],
+        "video_url": video_url,
+        "video_id": f"vid_{session_id[:8]}",
+        "compliance_results": [],
         "errors": [],
     }
 
@@ -29,28 +44,20 @@ def run_cli_simulation():
     print(f"Input Payload: \n {json.dumps(initial_inputs, indent=2)}")
 
     try:
-        final_state = app.invoke(initial_inputs)
-
-        print("----------- Workflow Execution Complete -----------")
-
-        print("\n Compliance Audit Report.....")
-        print(f"Video ID: {final_state.get("video_id")}")
-        print(f"Status: {final_state.get("status")}")
-
-        print("\n [ VIOLATIONS DETECTED ]")
-
-        results = final_state.get("compliance_result", [])
+        logger.info(f"Querying DB for Video: {video_url}")
+        results = get_video_analysis(video_url, DB_PATH)
 
         if results:
-            for issue in results:
-                print(
-                    f" - [{issue.get("severity")}] [{issue.get("category")}] : {issue.get("description")}"
-                )
-        else:
-            print("--------- No Violations Detected! ------------")
+            logger.info(f"Found Results in Database.")
+            print_results(results)
+            return
 
-        print("\n--------- Final Summary-------------")
-        print(final_state.get("final_report"))
+        logger.info(f"Results not in Database. Invoking Graph.")
+        final_state = app.invoke(initial_inputs)
+
+        print_results(final_state)
+
+        add_video_analysis(final_state, DB_PATH)
 
     except Exception as e:
         logger.error(f"Failed to execute workflow: {str(e)}")
@@ -58,4 +65,5 @@ def run_cli_simulation():
 
 
 if __name__ == "__main__":
-    run_cli_simulation()
+    args = parse_arguments()
+    run_cli_simulation(args.url)
