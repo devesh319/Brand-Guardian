@@ -1,1 +1,53 @@
+# Environment and local configuration
 .env
+.env.*
+!.env.example
+
+# Virtual environments
+.venv/
+venv/
+env/
+.envdir/
+
+# Python cache and build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Test, coverage, and type-checker output
+.pytest_cache/
+.mypy_cache/
+.pyright/
+.ruff_cache/
+.hypothesis/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# Application logs and local runtime output
+*.log
+logs/
+
+# Local database and generated indexes
+*.db
+*.sqlite
+*.sqlite3
+chroma/
+faiss_index/
+
+# Jupyter and notebook checkpoints
+.ipynb_checkpoints/
+
+# IDE and OS files
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+.DS_Store
+Thumbs.db
