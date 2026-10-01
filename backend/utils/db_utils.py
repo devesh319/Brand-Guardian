@@ -55,7 +55,7 @@ def get_video_analysis(
     return {
         "video_id": row[0],
         "status": row[1],
-        "compliance_result": row[2],
+        "compliance_result": json.loads(row[2]),
         "final_report": row[3],
     }
 

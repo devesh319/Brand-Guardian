@@ -110,6 +110,7 @@ class VideoIndexerService:
     def wait_for_processing(self, video_id):
         logger.info(f"Waiting for video {video_id} upload to Azure Video Indexer")
 
+        i = 1
         while True:
             arm_token = self.get_access_token()
             vi_token = self.get_account_token(arm_token)
@@ -131,7 +132,8 @@ class VideoIndexerService:
                     "Video Quarantined (Copyright / Content Policy Violation)"
                 )
 
-            logger.info(f"State: {state}, .....waiting 30 sec now")
+            logger.info(f"State: {state}, .....waiting 30 sec now (Iteration {i})")
+            i += 1
             time.sleep(30)
 
     def extract_data(self, vi_json):
