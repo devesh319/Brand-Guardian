@@ -16,6 +16,12 @@ The project provides both a command-line workflow and a FastAPI service. Complet
 - Exposes the workflow through a CLI and a FastAPI endpoint.
 - Persists completed analyses in a local SQLite database and can emit Azure Monitor telemetry.
 
+## Architechture
+
+<img width="26863" height="15891" alt="bg-arch" src="https://github.com/user-attachments/assets/378181b6-d25e-4d33-8fe4-a6c37163ca3b" />
+
+
+
 ## Prerequisites
 
 - Python 3.14 or later (as declared in `pyproject.toml`)
