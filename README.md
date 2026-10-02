@@ -18,7 +18,8 @@ The project provides both a command-line workflow and a FastAPI service. Complet
 
 ## Architechture
 
-<img width="26863" height="15891" alt="bg-arch" src="https://github.com/user-attachments/assets/378181b6-d25e-4d33-8fe4-a6c37163ca3b" />
+<img width="26863" height="18232" alt="brand-guardian-v1" src="https://github.com/user-attachments/assets/e372e013-eb06-4b3b-908c-28182db19fb2" />
+
 
 
 
