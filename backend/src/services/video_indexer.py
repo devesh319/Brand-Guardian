@@ -55,7 +55,7 @@ class VideoIndexerService:
     def download_youtube_video(
         self, video_url: str, output_path: str = "temp_audit_video.mp4"
     ):
-        logger.info(f"Downloading Youtube Video: {video_url}")
+        logger.info(f"Downloading YouTube Video: {video_url}")
 
         ydl_opts = {
             "format": "best",

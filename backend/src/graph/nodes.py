@@ -19,7 +19,7 @@ logging.basicConfig(level=logging.INFO)
 # Node 1: Video Indexer
 def video_indexer(state: VideoAuditState) -> Dict[str, Any]:
     """
-    Downloads the youtube video from the URL,
+    Downloads the YouTube video from the URL,
     Uploads to the Azure Video Indexer,
     Extracts the Insights
     """
@@ -39,7 +39,7 @@ def video_indexer(state: VideoAuditState) -> Dict[str, Any]:
                 video_url, output_path=local_file_name
             )
         else:
-            raise Exception("Please provide a valid Youtube URL")
+            raise Exception("Please provide a valid YouTube URL")
 
         azure_video_id = vi_service.upload_video(local_path, video_name=video_id_input)
 
@@ -88,7 +88,7 @@ def audit_content(state: VideoAuditState) -> Dict[str, Any]:
     )
 
     embeddings = AzureOpenAIEmbeddings(
-        azure_deployment="text-embedding-3-small",
+        azure_deployment=os.getenv("AZURE_OPENAI_EMBEDDING_DEPLOYMENT"),
         api_version=os.getenv("AZURE_OPENAI_API_VERSION"),
     )
 

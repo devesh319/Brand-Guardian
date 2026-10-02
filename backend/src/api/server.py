@@ -11,13 +11,9 @@ from dotenv import load_dotenv
 
 from backend.src.api.telemetry import set_telemetry
 from backend.src.graph.workflow import app as compliance_graph
-from backend.utils.db_utils import get_video_analysis, add_video_analysis
+from backend.utils.db_utils import get_video_analysis, add_video_analysis, DATABASE_PATH
 
 load_dotenv(override=True)
-
-DB_PATH = (
-    "/home/devesh/Desktop/Learnings/Projects/CompilanceQAPipeline/brand_guardian.db"
-)
 
 set_telemetry()
 
@@ -40,7 +36,7 @@ logger = logging.getLogger("brand-guardian-api")
 
 app = FastAPI(
     title="Brand Guardian",
-    description="API for auditing video content against Youtube Compliance Rules",
+    description="API for auditing video content against YouTube Compliance Rules",
     version="1.0.0",
 )
 
@@ -81,7 +77,7 @@ async def audit_video(request: AuditRequest):
 
     try:
         logger.info(f"Querying DB for Video: {request.video_url}")
-        results = get_video_analysis(request.video_url, DB_PATH)
+        results = get_video_analysis(request.video_url, DATABASE_PATH)
 
         if results:
             logger.info(f"Found Results in Database.")
@@ -96,7 +92,7 @@ async def audit_video(request: AuditRequest):
         logger.info(f"Results not in Database. Invoking Graph.")
         final_state = await compliance_graph.ainvoke(initial_inputs)
 
-        add_video_analysis(final_state, DB_PATH)
+        add_video_analysis(final_state, DATABASE_PATH)
 
         return AuditResponse(
             session_id=session_id,

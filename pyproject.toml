@@ -1,7 +1,7 @@
 [project]
-name = "compilanceqapipeline"
+name = "brand-guardian"
 version = "0.1.0"
-description = "Add your description here"
+description = "Audit YouTube videos against a compliance-policy knowledge base"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
@@ -32,7 +32,7 @@ dependencies = [
 ]
 
 [project.scripts]
-compilanceqapipeline = "compilanceqapipeline:main"
+brand-guardian = "brand_guardian:main"
 
 [build-system]
 requires = ["uv_build>=0.12.19,<0.13.0"]

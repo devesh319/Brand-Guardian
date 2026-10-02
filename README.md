@@ -40,7 +40,7 @@ You must have permission to download, process, and retain every video submitted 
 
    ```bash
    git clone <repository-url>
-   cd CompilanceQAPipeline
+   cd Brand-Guardian
    ```
 
 2. Create the environment and install dependencies.
